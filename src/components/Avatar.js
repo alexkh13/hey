@@ -1,10 +1,37 @@
 import React from 'react';
 import moment from 'moment';
-import { Avatar as MaterialAvatar, Box } from '@material-ui/core';
+import { Avatar as MaterialAvatar, Box, makeStyles } from '@material-ui/core';
 import { fade } from '@material-ui/core/styles/colorManipulator';
 import { red, green } from '@material-ui/core/colors';
 
+const useStyle = makeStyles(() => ({
+    greenPulse: {
+        animation: 'green-sonar-effect 4s ease-in-out .1s infinite',
+        content: '',
+        display: 'inline-block',
+        position: 'absolute',
+        width: '100%',
+        height: '100%',
+        borderRadius: '50%',
+        top: 0,
+        left: 0
+    },
+    redPulse: {
+        animation: 'red-sonar-effect 1s ease-in-out .1s infinite',
+        content: '',
+        display: 'inline-block',
+        position: 'absolute',
+        width: '100%',
+        height: '100%',
+        borderRadius: '50%',
+        top: 0,
+        left: 0
+    }
+}));
+
 export default function Avatar({ profile, size, style, ...props }) {
+
+    const classes = useStyle();
 
     const avatarStyle = {
         width: size,
@@ -22,6 +49,7 @@ export default function Avatar({ profile, size, style, ...props }) {
             borderRadius:'50%',
             ...style
         }} {...props}>    
+        <div className={offline ? classes.redPulse : classes.greenPulse}/>
         <MaterialAvatar src={profile.avatar} style={avatarStyle} />
     </Box>
 }

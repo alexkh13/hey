@@ -4,15 +4,8 @@ import Document from './Document';
 import Home from './Home';
 import { Grid, Typography, CircularProgress } from '@material-ui/core';
 import config from './config';
-import {useUser} from './firebase';
 
 export default function App() {
-
-  const [user] = useUser();
-
-  if (!user) {
-    return <Spinner/>
-  }
 
   return <Router>
     <Switch>

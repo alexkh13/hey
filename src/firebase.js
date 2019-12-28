@@ -33,18 +33,21 @@ export function useNotificationToggle({ snapshot }) {
     const [user] = useUser();
     const [subscribed, setSubscribed] = useState();
 
-    const subscriptionRef = firestore.doc(`${snapshot.ref.path}/subscribers/${user.uid}`);
+    const subscriptionRef = user && firestore.doc(`${snapshot.ref.path}/subscribers/${user.uid}`);
 
-    const [ subscription, loading ] = useDocument(subscriptionRef);
+    const [ subscription, loadingSubcription ] = useDocument(subscriptionRef);
+
+    const [loading, setLoading] = useState(loadingSubcription);
 
     const subscriptionData = subscription && subscription.data();
 
     useEffect(() => {
-        if (!loading && subscriptionData) {
+        if (!loadingSubcription && subscriptionData) {
             const { enabled } = subscriptionData;
             setSubscribed(enabled);
         }
-    }, [loading, subscription, subscriptionData]);
+        setLoading(loadingSubcription);
+    }, [loadingSubcription, subscription, subscriptionData]);
 
     function setToken(token) {
         if (subscription.exists) {
@@ -74,8 +77,13 @@ export function useNotificationToggle({ snapshot }) {
     }
 
     function toggle() {
-        messaging.getToken().then(setToken, setTokenError);
+        setLoading(true);
+        messaging.getToken()
+            .then(setToken, setTokenError)
+            .finally(() => {
+                setLoading(false);
+            });
     }
     
-    return [subscribed, toggle];
+    return [subscribed, loading, toggle];
 }

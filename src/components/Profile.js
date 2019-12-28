@@ -6,6 +6,7 @@ import { fade } from '@material-ui/core/styles/colorManipulator';
 import Image from './Image';
 import Avatar from './Avatar';
 import NotificationToggle from './NotificationToggle';
+import QRCode from './QRCode';
 
 export default function Profile({ path, snapshot }) {
 
@@ -19,7 +20,14 @@ export default function Profile({ path, snapshot }) {
         </Box>
 
         <Box p={2} style={{ position: 'fixed', top: 0, right: 0 }}>
-            <NotificationToggle snapshot={snapshot}/>
+            <Grid container spacing={1}>
+                <Grid item>
+                    <NotificationToggle snapshot={snapshot}/>
+                </Grid>
+                <Grid item>
+                    <QRCode/>
+                </Grid>
+            </Grid>
         </Box>
         
         <Box style={{ position: 'relative', marginBottom: -avatarSize/2, bottom: avatarSize/2 }}>
