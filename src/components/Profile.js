@@ -65,12 +65,13 @@ function Message({ data }) {
             </Typography>
         </Grid>
         <Grid item>
-            <Typography variant="body2" display="inline" style={{
+            <Typography variant="body2" style={{
                 background: theme.palette.primary.main,
                 color: fade(theme.palette.primary.contrastText, data.text ? 1 : .5),
                 borderRadius: theme.spacing(.5),
                 padding: theme.spacing(1),
-                marginBottom: theme.spacing(2)
+                margin: `${theme.spacing(1)}px ${theme.spacing(2)}px`,
+                maxWidth: 500
             }}>
                 {data.text || "None"}
             </Typography>
