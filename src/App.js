@@ -13,6 +13,12 @@ export default function App() {
       <Route path="/:id?">
         {({match}) => {
           const documentId = host || match.params.id;
+          if (host) {
+            match = {
+              ...match,
+              url: ''
+            }
+          }
           if (documentId) {
             return <Document 
             match={match}
