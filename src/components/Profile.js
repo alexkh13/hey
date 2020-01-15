@@ -1,7 +1,7 @@
 import React from 'react';
 import moment from 'moment';
 import { Grid, Box, useTheme, Typography } from '@material-ui/core';
-import Collection from '../Collection';
+import Collection from './Collection';
 import { fade } from '@material-ui/core/styles/colorManipulator';
 import Image from './Image';
 import Avatar from './Avatar';

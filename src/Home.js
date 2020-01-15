@@ -1,6 +1,6 @@
 import React from 'react';
 import { Box } from "@material-ui/core";
-import Center from './Center';
+import Center from './components/Center';
 
 export default function Home() {
     return <Box p={2} className="fill" style={{

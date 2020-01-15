@@ -1,6 +1,6 @@
 import React from 'react';
 import { useCollection } from "react-firebase-hooks/firestore";
-import { firestore } from './firebase';
+import { firestore } from '../firebase';
 import { Typography } from '@material-ui/core';
 import Spinner from './Spinner';
 

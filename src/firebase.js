@@ -15,6 +15,10 @@ export const auth = firebase.auth();
 export const firestore = firebase.firestore();
 export const messaging = firebase.messaging();
 
+export function getProjectID() {
+    return config.projectId.replace("--", '-');
+}
+
 messaging.usePublicVapidKey("BGg07dNz7wHWhy_iaead1lf9tMEtnvT8gULAi4pBD1NrqqYTMOLJNjIOdFrOm9t4TL6Az6No0AU7gT-r6u8n16w");
 
 auth.signInAnonymously();
