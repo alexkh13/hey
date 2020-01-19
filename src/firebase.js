@@ -21,7 +21,9 @@ export function getProjectID() {
 
 messaging.usePublicVapidKey("BGg07dNz7wHWhy_iaead1lf9tMEtnvT8gULAi4pBD1NrqqYTMOLJNjIOdFrOm9t4TL6Az6No0AU7gT-r6u8n16w");
 
-auth.signInAnonymously();
+auth.signInAnonymously().then(({user}) => {
+    console.log(`signed in anonymously, uid ${user.uid}`);
+});
 
 export function useUser() {
     const [user, setUser] = useState(auth.currentUser);

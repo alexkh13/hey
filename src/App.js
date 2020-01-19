@@ -21,9 +21,9 @@ export default function App() {
           }
           if (documentId) {
             return <Document 
-            match={match}
-            path={config.mainPath} 
-            id={documentId}
+              match={match}
+              path={config.mainPath} 
+              id={documentId}
             />
           } else {
             return <Home />;

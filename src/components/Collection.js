@@ -1,12 +1,13 @@
 import React from 'react';
 import { useCollection } from "react-firebase-hooks/firestore";
 import { firestore } from '../firebase';
-import { Typography } from '@material-ui/core';
+import { Typography, Grid } from '@material-ui/core';
 import Spinner from './Spinner';
+import Generic from './Generic';
 
-export default function Collection({ parent, path, orderBy, limit, children }) {
+export default function Collection({ parent, snapshot, path, orderBy, limit, component, children, ...props }) {
 
-  path = (parent || '') + path;
+  path = (parent || snapshot.path || snapshot.ref.path) + path;
 
   let query = firestore.collection(path);
 
@@ -18,13 +19,26 @@ export default function Collection({ parent, path, orderBy, limit, children }) {
     query = query.limit(limit);
   }
 
-  const [ snapshot, loading, error ] = useCollection(query, {
+  const [ s, loading, error ] = useCollection(query, {
     snapshotListenOptions: { includeMetadataChanges: true },
   });
 
+  function render() {
+
+    if (children) {
+      return children(s);
+    }
+    
+    return <Grid container direction="column" {...props}>
+      {s.docs.map((doc, i) => <Grid key={i} item>
+        <Generic snapshot={doc} def={component}/>
+      </Grid>)}
+    </Grid>
+  }
+
   return loading ? <Spinner/> : 
     error ? <Error error={error}/>
-    : children(snapshot)
+    : render();
 }
 
 function Error(error) {
