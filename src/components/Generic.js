@@ -2,6 +2,7 @@ import React, { useMemo, Suspense } from 'react';
 import {mapValues,get} from 'lodash';
 import Spinner from './Spinner';
 import Center from './Center';
+import { auth } from '../firebase';
 
 export default function Generic({ match, path, snapshot, style, def }) {
 
@@ -17,6 +18,7 @@ export default function Generic({ match, path, snapshot, style, def }) {
         return <Projection 
             path={path} 
             style={style}
+            match={match}
             snapshot={snapshot} 
             props={data}/>
     }
@@ -35,13 +37,15 @@ export default function Generic({ match, path, snapshot, style, def }) {
     }}/>);
 }
 
-export function parseProps(context, props) {
+export function parseProps(props, context) {
     return mapValues(props, (value, key) => {
         if (typeof value == 'string') {
             if (value.match(/^\${.*}$/) && value.substring(2).indexOf('$') === -1) {
                 return get(context, value.match(/\${(.*)}/)[1]);
             }
             return value.replace(/\${([^}]*)}/g, (match, path) => get(context, path));
+        } if (typeof value == 'function') {
+            return () => value(context);
         } else {
             return value;
         }
@@ -57,6 +61,12 @@ function Projection({ match, path, snapshot, style, props }) {
     const context = {
         data,
         snapshot,
+        user: {
+            ...auth.currentUser,
+            ...auth.currentUser.isAnonymous && {
+                displayName: localStorage.getItem("anonDisplayName")
+            }
+        },
     };
 
     const LoadableComponent = useMemo(() => React.lazy(() => {
@@ -77,7 +87,7 @@ function Projection({ match, path, snapshot, style, props }) {
             style={style}
             path={path} 
             snapshot={snapshot} 
-            {...parseProps(context, props)}/>
+            {...parseProps(props, context)}/>
     </Suspense>
 }
 

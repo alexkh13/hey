@@ -5,7 +5,7 @@ import { Typography, Grid } from '@material-ui/core';
 import Spinner from './Spinner';
 import Generic from './Generic';
 
-export default function Collection({ parent, snapshot, path, orderBy, limit, component, children, ...props }) {
+export default function Collection({ match, parent, snapshot, path, orderBy, limit, component, empty, children, ...props }) {
 
   path = (parent || snapshot.path || snapshot.ref.path) + path;
 
@@ -28,10 +28,18 @@ export default function Collection({ parent, snapshot, path, orderBy, limit, com
     if (children) {
       return children(s);
     }
+
+    if (s.empty) {
+      if (typeof empty == 'string') {
+        return <Typography color="textSecondary">{empty || "Empty"}</Typography>
+      } else {
+        return <Generic match={match} snapshot={snapshot} def={s.empy} />
+      }
+    }
     
     return <Grid container direction="column" {...props}>
       {s.docs.map((doc, i) => <Grid key={i} item>
-        <Generic snapshot={doc} def={component}/>
+        <Generic match={match} snapshot={doc} def={component}/>
       </Grid>)}
     </Grid>
   }

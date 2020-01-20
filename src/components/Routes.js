@@ -16,7 +16,7 @@ export default function Routes({ match, path, snapshot, children }) {
                     match={match} 
                     path={context.path}
                     snapshot={snapshot} 
-                    def={parseProps({ ...context, match}, component)}/>}
+                    def={parseProps(component, { ...context, match})}/>}
             </Route>)}
         </Switch>
     } else {

@@ -33,8 +33,11 @@ export default function SubscribeButton({ snapshot, collectionName, ...props }) 
         if (isSubscribed) {
             await subscriptionRef.delete();
         } else {
-            const name = user.name || prompt("What's your name?");
+            const name = user.displayName || prompt("What's your name?");
             if (name) {
+                if (user.isAnonymous) {
+                    localStorage.setItem("anonDisplayName", name); 
+                }
                 await subscriptionRef.set({
                     createdBy: user.uid,
                     name,
