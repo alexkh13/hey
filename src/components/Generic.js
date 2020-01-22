@@ -1,10 +1,10 @@
-import React, { useMemo, Suspense } from 'react';
+import React, { useMemo, Suspense, useState } from 'react';
 import {mapValues,get} from 'lodash';
 import Spinner from './Spinner';
 import Center from './Center';
 import { auth } from '../firebase';
 
-export default function Generic({ match, path, snapshot, style, def }) {
+export default function Generic({ match, path, snapshot, style, def, disableLoading }) {
 
     const data = snapshot.data();
 
@@ -16,6 +16,7 @@ export default function Generic({ match, path, snapshot, style, def }) {
 
     if (!def) {
         return <Projection 
+            disableLoading={disableLoading}
             path={path} 
             style={style}
             match={match}
@@ -28,6 +29,7 @@ export default function Generic({ match, path, snapshot, style, def }) {
     }
 
     return def.map((props, key) => <Projection {...{
+        disableLoading,
         key,
         path,
         match,
@@ -52,7 +54,9 @@ export function parseProps(props, context) {
     });
 }
 
-function Projection({ match, path, snapshot, style, props }) {
+function Projection({ match, path, snapshot, style, props, disableLoading }) {
+
+    const [loadingError, setLoadingError] = useState();
 
     const {type} = props;
 
@@ -71,7 +75,10 @@ function Projection({ match, path, snapshot, style, props }) {
 
     const LoadableComponent = useMemo(() => React.lazy(() => {
         if (type) {
-            return import('./' + snakeToCamel(type));
+            return import('./' + snakeToCamel(type)).catch(err => {
+                console.error(err);
+                setLoadingError(err);
+            });
         }
     }), [type]);
 
@@ -81,7 +88,7 @@ function Projection({ match, path, snapshot, style, props }) {
         </Center>;
     }
 
-    return <Suspense fallback={<Spinner/>}>
+    return <Suspense fallback={loadingError ? loadingError.message : (!disableLoading && <Spinner/>)}>
         <LoadableComponent 
             match={match} 
             style={style}

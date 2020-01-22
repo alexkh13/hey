@@ -59,12 +59,12 @@ export default function Document({ snapshot, match, path, id, view }) {
           });
         }
         
-        return <Grid container direction="column" className="fill" style={{ 
+        return <Grid container direction="row" className="fill" style={{ 
           position: 'relative',
         }}>
-          <Grid item xs className="scroll">{children}</Grid>
+          <Grid item xs={8} className="scroll" style={{position:'relative'}}>{children}</Grid>
           <Divider/>
-          <Grid item xs className="scroll">
+          <Grid item xs={4} className="scroll">
             <Editor onChange={onRawChange} value={rawData}/>
             <Fab onClick={save} style={{
               position: 'absolute',

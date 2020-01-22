@@ -30,10 +30,10 @@ export default function Collection({ match, parent, snapshot, path, orderBy, lim
     }
 
     if (s.empty) {
-      if (typeof empty == 'string') {
+      if (!empty || typeof empty == 'string') {
         return <Typography color="textSecondary">{empty || "Empty"}</Typography>
       } else {
-        return <Generic match={match} snapshot={snapshot} def={s.empy} />
+        return <Generic match={match} snapshot={snapshot} def={empty} />
       }
     }
     

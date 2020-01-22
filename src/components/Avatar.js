@@ -1,6 +1,8 @@
 import React from 'react';
 import moment from 'moment';
+import { get } from 'lodash';
 import { Avatar as MaterialAvatar, Box, makeStyles } from '@material-ui/core';
+import AvatarIcon from '@material-ui/icons/AccountBox';
 import { fade } from '@material-ui/core/styles/colorManipulator';
 import { red, green } from '@material-ui/core/colors';
 
@@ -29,7 +31,7 @@ const useStyle = makeStyles(() => ({
     }
 }));
 
-export default function Avatar({ profile, size, style, ...props }) {
+export default function Avatar({ profile = {}, size, style, ...props }) {
 
     const classes = useStyle();
 
@@ -38,7 +40,12 @@ export default function Avatar({ profile, size, style, ...props }) {
         height: size
     };
 
-    const offline = moment().subtract(profile.presence.timeout, 'seconds').isAfter(profile.presence.lastUpdate.toDate());
+    const presenseTimeout = get(profile, 'presence.timeout');
+    const presenceLastUpdate = get(profile, 'presence.lastUpdate', {
+        toDate: () => new Date()
+    });
+
+    const offline = moment().subtract(presenseTimeout, 'seconds').isAfter(presenceLastUpdate.toDate());
 
     return <Box boxShadow={3} style={{
             position: 'relative',
@@ -50,6 +57,9 @@ export default function Avatar({ profile, size, style, ...props }) {
             ...style
         }} {...props}>    
         <div className={offline ? classes.redPulse : classes.greenPulse}/>
-        <MaterialAvatar src={profile.avatar} style={avatarStyle} />
+        <MaterialAvatar 
+            src={profile.avatar} 
+            style={avatarStyle} 
+            children={!profile.avatar && <AvatarIcon style={{ width: size/2, height: size/2}}/>} />
     </Box>
 }
