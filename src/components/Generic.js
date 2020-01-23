@@ -48,6 +48,8 @@ export function parseProps(props, context) {
             return value.replace(/\${([^}]*)}/g, (match, path) => get(context, path));
         } if (typeof value == 'function') {
             return () => value(context);
+        } if (typeof value == 'object' && !Array.isArray(value)) {
+            return parseProps(value, context);
         } else {
             return value;
         }

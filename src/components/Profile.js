@@ -16,7 +16,7 @@ export default function Profile({ path, snapshot }) {
     return <Grid container direction="column" alignItems="center" justify="center">
         
         <Box style={{ height: '50vh', width: '100vw' }}>
-            <Image image={profile.background}/>
+            <Image src={profile.background}/>
         </Box>
 
         <Box p={2} style={{ position: 'fixed', top: 0, right: 0 }}>

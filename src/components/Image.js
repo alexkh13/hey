@@ -1,9 +1,8 @@
 import React from 'react';
 
-export default function Image({ image, style, ...props }) {
+export default function Image({ src, style, ...props }) {
     return <div style={{
-        backgroundColor: '#f3f3f3',
-        backgroundImage: `url(${image})`,
+        backgroundImage: `url(${src})`,
         backgroundSize: 'cover',
         backgroundPosition: '50%',
         height: '100%',
