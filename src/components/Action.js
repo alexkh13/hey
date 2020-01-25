@@ -31,7 +31,13 @@ export default function Action({ open = false, snapshot, input, output, componen
 
     async function runAction(context) {
         if (output.insert) {
-            snapshot.ref.collection(output.insert.path).add(parseProps(output.insert.data, context));
+            snapshot.ref.collection(output.insert.path).add(parseProps(output.insert.data, context)).catch(err => {
+                setSnackbar({
+                    open: true,
+                    severity: "error",
+                    message: err.message
+                });
+            });
             onClose();
         }
         if (output.update) {

@@ -37,8 +37,8 @@ export default function Collection({ match, parent, snapshot, path, orderBy, lim
       }
     }
     
-    return <Grid container direction="column" {...props}>
-      {s.docs.map((doc, i) => <Grid key={i} item>
+    return <Grid container direction="column" {...props}  style={{ width: "100%", ...props.style }} >
+      {s.docs.map((doc, i) => <Grid key={i} style={{ width: "100%" }} item>
         <Generic match={match} snapshot={doc} def={component}/>
       </Grid>)}
     </Grid>

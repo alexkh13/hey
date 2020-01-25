@@ -1,5 +1,5 @@
 import React, { useMemo, Suspense, useState } from 'react';
-import {mapValues,get} from 'lodash';
+import {each,get} from 'lodash';
 import Spinner from './Spinner';
 import Center from './Center';
 import { auth } from '../firebase';
@@ -40,20 +40,30 @@ export default function Generic({ match, path, snapshot, style, def, disableLoad
 }
 
 export function parseProps(props, context) {
-    return mapValues(props, (value, key) => {
-        if (typeof value == 'string') {
-            if (value.match(/^\${.*}$/) && value.substring(2).indexOf('$') === -1) {
-                return get(context, value.match(/\${(.*)}/)[1]);
-            }
-            return value.replace(/\${([^}]*)}/g, (match, path) => get(context, path));
-        } if (typeof value == 'function') {
-            return () => value(context);
-        } if (typeof value == 'object' && !Array.isArray(value)) {
-            return parseProps(value, context);
+    const newProps = {};
+    each(props, (value, key) => {
+        const res = { key, value };
+        if (key.charAt(0) === '$') {
+            res.key = key.substring(1);
         } else {
-            return value;
+            res.value = (() => {
+                if (typeof value == 'string') {
+                    if (value.match(/^\${.*}$/) && value.substring(2).indexOf('$') === -1) {
+                        return get(context, value.match(/\${(.*)}/)[1]);
+                    }
+                    return value.replace(/\${([^}]*)}/g, (match, path) => get(context, path));
+                } if (typeof value == 'function') {
+                    return () => value(context);
+                } if (typeof value == 'object' && !Array.isArray(value)) {
+                    return parseProps(value, context);
+                } else {
+                    return value;
+                }
+            })();
         }
+        newProps[res.key] = res.value;
     });
+    return newProps;
 }
 
 function Projection({ match, path, snapshot, style, props, disableLoading }) {
