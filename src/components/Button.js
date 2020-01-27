@@ -2,9 +2,11 @@ import React, { useState } from 'react';
 import { Button as MaterialButton } from '@material-ui/core';
 import Action from './Action';
 
-export default function Button({ snapshot, text, action }) {
+export default function Button({ snapshot, text, action, ...props }) {
 
     const [actionOpen, setActionOpen] = useState(false);
+
+    action = action || {};
 
     function handleClick() {
         setActionOpen(true);
@@ -19,7 +21,8 @@ export default function Button({ snapshot, text, action }) {
             onClose={() => setActionOpen(false)} />
         <MaterialButton 
             variant="contained"
-            onClick={handleClick}>
+            onClick={handleClick}
+            {...props}>
             {text}
         </MaterialButton>
     </React.Fragment>

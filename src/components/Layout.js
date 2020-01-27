@@ -9,7 +9,7 @@ export default function Layout({ match, snapshot, children, ...props }) {
         }
     }
     return <Grid container wrap="nowrap" {...props} style={{...style,...props.style}}>
-        {children.map((child, index) => <Grid key={index} style={style} item>
+        {children.map(({ layoutItem, ...child }, index) => <Grid key={index} style={style} item {...layoutItem}>
             <Generic match={match} snapshot={snapshot} def={child} disableLoading={true}/>
         </Grid>)}
     </Grid>

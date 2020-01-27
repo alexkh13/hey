@@ -1,8 +1,9 @@
 import React, { useMemo, Suspense, useState } from 'react';
-import {each,get} from 'lodash';
+import {each} from 'lodash';
 import Spinner from './Spinner';
 import Center from './Center';
 import { auth } from '../firebase';
+import expr from 'expression-eval';
 
 export default function Generic({ match, path, snapshot, style, def, disableLoading }) {
 
@@ -39,8 +40,30 @@ export default function Generic({ match, path, snapshot, style, def, disableLoad
     }}/>);
 }
 
+function evaluate(context, expression) {
+    const ast = expr.parse(expression);
+    try {
+        return expr.eval(ast, context);
+    } 
+    catch(err) {
+        console.error(err);
+        return;
+    }
+}
+
 export function parseProps(props, context) {
     const newProps = {};
+
+    context = {
+        user: {
+            ...auth.currentUser,
+            ...auth.currentUser.isAnonymous && {
+                displayName: localStorage.getItem("anonDisplayName")
+            }
+        },
+        ...context,
+    }
+
     each(props, (value, key) => {
         const res = { key, value };
         if (key.charAt(0) === '$') {
@@ -49,9 +72,9 @@ export function parseProps(props, context) {
             res.value = (() => {
                 if (typeof value == 'string') {
                     if (value.match(/^\${.*}$/) && value.substring(2).indexOf('$') === -1) {
-                        return get(context, value.match(/\${(.*)}/)[1]);
+                        return evaluate(context, value.match(/\${(.*)}/)[1]);
                     }
-                    return value.replace(/\${([^}]*)}/g, (match, path) => get(context, path));
+                    return value.replace(/\${([^}]*)}/g, (_, expression) => evaluate(context, expression));
                 } if (typeof value == 'function') {
                     return () => value(context);
                 } if (typeof value == 'object' && !Array.isArray(value)) {
@@ -77,12 +100,6 @@ function Projection({ match, path, snapshot, style, props, disableLoading }) {
     const context = {
         data,
         snapshot,
-        user: {
-            ...auth.currentUser,
-            ...auth.currentUser.isAnonymous && {
-                displayName: localStorage.getItem("anonDisplayName")
-            }
-        },
     };
 
     const LoadableComponent = useMemo(() => React.lazy(() => {

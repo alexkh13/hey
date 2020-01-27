@@ -11,6 +11,8 @@ import { useState, useEffect } from 'react';
 
 firebase.initializeApp(config);
 
+export { firebase };
+
 export const auth = firebase.auth();
 export const firestore = firebase.firestore();
 export const messaging = firebase.messaging();
