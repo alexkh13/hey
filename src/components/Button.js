@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
 import { Button as MaterialButton } from '@material-ui/core';
 import Action from './Action';
+import { Link } from 'react-router-dom';
 
-export default function Button({ snapshot, text, action, ...props }) {
+export default function Button({ match, snapshot, text, action, href, ...props }) {
 
     const [actionOpen, setActionOpen] = useState(false);
 
@@ -11,7 +12,7 @@ export default function Button({ snapshot, text, action, ...props }) {
     function handleClick() {
         setActionOpen(true);
     }
-
+    
     return <React.Fragment>
         <Action 
             open={actionOpen} 
@@ -19,11 +20,22 @@ export default function Button({ snapshot, text, action, ...props }) {
             input={action.input} 
             output={action.output}
             onClose={() => setActionOpen(false)} />
-        <MaterialButton 
-            variant="contained"
-            onClick={handleClick}
-            {...props}>
-            {text}
-        </MaterialButton>
+        <ButtonWrapper match={match} href={href}>
+            <MaterialButton 
+                variant="contained"
+                onClick={handleClick}
+                {...props}>
+                {text}
+            </MaterialButton>
+        </ButtonWrapper>
+        
     </React.Fragment>
+}
+
+function ButtonWrapper({ match, href, children }) {
+    if (href) {
+        return <Link to={`${match.url}${href}`}>{children}</Link>
+    } else {
+        return children;
+    }
 }

@@ -1,7 +1,6 @@
 import React, { useMemo, Suspense, useState } from 'react';
 import {each} from 'lodash';
 import Spinner from './Spinner';
-import Center from './Center';
 import { auth } from '../firebase';
 import expr from 'expression-eval';
 
@@ -10,10 +9,6 @@ export default function Generic({ match, path, snapshot, style, def, disableLoad
     const data = snapshot.data();
 
     def = def || data.root;
-
-    style = style || {
-        height: "100%"
-    };
 
     if (!def) {
         return <Projection 
@@ -100,6 +95,7 @@ function Projection({ match, path, snapshot, style, props, disableLoading }) {
     const context = {
         data,
         snapshot,
+        match,
     };
 
     const LoadableComponent = useMemo(() => React.lazy(() => {
@@ -112,9 +108,7 @@ function Projection({ match, path, snapshot, style, props, disableLoading }) {
     }), [type]);
 
     if (!type) {
-        return <Center>
-            {`data=${JSON.stringify(data)}`}
-        </Center>;
+        return <div {...props}/>;
     }
 
     return <Suspense fallback={loadingError ? loadingError.message : (!disableLoading && <Spinner/>)}>
