@@ -64,18 +64,13 @@ async function collectionCreate(snap, context) {
             }
 
             return admin.messaging().sendToDevice(subscriberData.tokens, {
-                ...documentData.notificationData && {
-                    data: documentData.notificationData
-                },
-                notification: documentData.text 
-                    ? {
+                data: {
+                    ...documentData.notification,
+                    ...documentData.text && {
                         title: 'Incoming message',
                         body: documentData.text 
-                    } 
-                    : documentData.notification || {
-                        title: 'New notification title',
-                        body: 'No body'
                     }
+                }
             });
 
         }));

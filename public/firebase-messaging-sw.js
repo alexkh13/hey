@@ -24,15 +24,14 @@ const messaging = firebase.messaging();
 messaging.setBackgroundMessageHandler(function(payload) {
   console.log('[firebase-messaging-sw.js] Received background message ', payload);
   // Customize notification here
-  const notificationTitle = payload.notification.title || 'No title';
+  const notificationTitle = payload.data.title || 'No title';
   const notificationOptions = {
-    body: payload.notification.body || 'No body',
-    icon: payload.notification.icon || '/logo192.png',
+    body: payload.data.body || 'No body',
+    icon: payload.data.icon || '/logo192.png',
     data: payload.data.link
   };
 
-  return self.registration.showNotification(notificationTitle,
-    notificationOptions);
+  return self.registration.showNotification(notificationTitle, notificationOptions);
 });
 
 self.addEventListener('notificationclick', function(event) {
