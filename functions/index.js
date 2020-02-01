@@ -63,14 +63,18 @@ async function collectionCreate(snap, context) {
                 return null
             }
 
-            return Promise.all(subscriberData.tokens.map(token => {
-                return admin.messaging().sendToDevice(token, {
-                    notification: {
+            return admin.messaging().sendToDevice(subscriberData.tokens, {
+                data: documentData.notificationData,
+                notification: documentData.text 
+                    ? {
                         title: 'Incoming message',
-                        body: documentData.text
+                        body: documentData.text 
+                    } 
+                    : documentData.notification || {
+                        title: 'New notification title',
+                        body: 'No body'
                     }
-                });
-            }));
+            });
 
         }));
         

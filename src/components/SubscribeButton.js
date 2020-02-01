@@ -1,7 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { Button } from '@material-ui/core';
 import { useDocument } from 'react-firebase-hooks/firestore';
-import { useUser, firestore } from '../firebase';
+import { useUser } from '../firebase';
+import { getCollection } from './Generic';
+import { messaging } from '../firebase';
 
 export default function SubscribeButton({ snapshot, collectionName, ...props }) {
 
@@ -9,7 +11,9 @@ export default function SubscribeButton({ snapshot, collectionName, ...props }) 
 
     collectionName = collectionName || "subscribers";
 
-    const subscriptionRef = user && firestore.doc(`${snapshot.path || snapshot.ref.path}/${collectionName}/${user.uid}`);
+    const colRef = getCollection(snapshot, collectionName)
+
+    const subscriptionRef = user && colRef.doc(user.uid);
 
     const [ subscription, loadingSubcription ] = useDocument(subscriptionRef);
 
@@ -38,10 +42,16 @@ export default function SubscribeButton({ snapshot, collectionName, ...props }) 
                 if (user.isAnonymous) {
                     localStorage.setItem("anonDisplayName", name); 
                 }
-                await subscriptionRef.set({
-                    createdBy: user.uid,
-                    name,
-                });
+                await messaging.getToken()
+                    .then(async (token) => subscriptionRef.set({
+                        createdBy: user.uid,
+                        tokens: [token],
+                        name
+                    }))
+                    .catch((err) => {
+                        console.error(err);
+                        alert(err);
+                    })
             }
         }
         setLoading(false);

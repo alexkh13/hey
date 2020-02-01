@@ -13,13 +13,15 @@ export default function Profile({ path, snapshot }) {
     const { profile } = snapshot.data();
     const avatarSize = 200;
 
-    return <Grid container direction="column" alignItems="center" justify="center">
+    return <Grid container direction="column" alignItems="center" justify="center" style={{
+        position: 'relative'
+    }}>
         
-        <Box style={{ height: '50vh', width: '100vw' }}>
+        <Box style={{ height: '50vh', width: '100%' }}>
             <Image src={profile.background}/>
         </Box>
 
-        <Box p={2} style={{ position: 'fixed', top: 0, right: 0 }}>
+        <Box p={2} style={{ position: 'absolute', top: 0, right: 0 }}>
             <Grid container spacing={1}>
                 <Grid item>
                     <NotificationToggle snapshot={snapshot}/>
@@ -36,6 +38,7 @@ export default function Profile({ path, snapshot }) {
                     
         <Box mt={5} mb={5}>
             <Collection 
+                snapshot={snapshot}
                 parent={path}
                 path="/messages"  
                 orderBy="createTime desc"

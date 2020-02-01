@@ -20,3 +20,24 @@ firebase.initializeApp({
 // Retrieve an instance of Firebase Messaging so that it can handle background
 // messages.
 const messaging = firebase.messaging();
+
+messaging.setBackgroundMessageHandler(function(payload) {
+  console.log('[firebase-messaging-sw.js] Received background message ', payload);
+  // Customize notification here
+  const notificationTitle = payload.notification.title || 'No title';
+  const notificationOptions = {
+    body: payload.notification.body || 'No body',
+    icon: payload.notification.icon || '/logo192.png',
+    data: payload.data.link
+  };
+
+  return self.registration.showNotification(notificationTitle,
+    notificationOptions);
+});
+
+self.addEventListener('notificationclick', function(event) {
+  event.notification.close(); 
+  if (event.notification.data) {
+    clients.openWindow(event.notification.data);
+  }
+});

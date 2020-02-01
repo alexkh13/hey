@@ -1,0 +1,17 @@
+[debug] [2020-02-01T14:18:38.535Z] ----------------------------------------------------------------------
+[debug] [2020-02-01T14:18:38.537Z] Command:       /usr/local/bin/node /usr/local/bin/firebase deploy --only hosting
+[debug] [2020-02-01T14:18:38.538Z] CLI Version:   7.8.1
+[debug] [2020-02-01T14:18:38.538Z] Platform:      darwin
+[debug] [2020-02-01T14:18:38.538Z] Node Version:  v10.16.0
+[debug] [2020-02-01T14:18:38.539Z] Time:          Sat Feb 01 2020 16:18:38 GMT+0200 (Israel Standard Time)
+[debug] [2020-02-01T14:18:38.539Z] ----------------------------------------------------------------------
+[debug] [2020-02-01T14:18:38.539Z] 
+[debug] [2020-02-01T14:18:38.552Z] > command requires scopes: ["email","openid","https://www.googleapis.com/auth/cloudplatformprojects.readonly","https://www.googleapis.com/auth/firebase","https://www.googleapis.com/auth/cloud-platform"]
+[debug] [2020-02-01T14:18:38.552Z] > authorizing via signed-in user
+[debug] [2020-02-01T14:18:38.552Z] [iam] checking project hey--x for permissions ["firebase.projects.get","firebasehosting.sites.update"]
+[debug] [2020-02-01T14:18:38.554Z] > refreshing access token with scopes: ["email","https://www.googleapis.com/auth/cloud-platform","https://www.googleapis.com/auth/cloudplatformprojects.readonly","https://www.googleapis.com/auth/firebase","openid"]
+[debug] [2020-02-01T14:18:38.554Z] >>> HTTP REQUEST POST https://www.googleapis.com/oauth2/v3/token  
+ <request body omitted>
+[debug] [2020-02-01T14:18:38.948Z] <<< HTTP RESPONSE 200
+[debug] [2020-02-01T14:18:38.974Z] >>> HTTP REQUEST POST https://cloudresourcemanager.googleapis.com/v1/projects/hey--x:testIamPermissions  
+

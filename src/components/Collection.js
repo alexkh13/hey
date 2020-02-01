@@ -1,15 +1,12 @@
 import React from 'react';
 import { useCollection } from "react-firebase-hooks/firestore";
-import { firestore } from '../firebase';
 import { Typography, Grid } from '@material-ui/core';
 import Spinner from './Spinner';
-import Generic from './Generic';
+import Generic, { getCollection } from './Generic';
 
 export default function Collection({ match, parent, snapshot, path, orderBy, limit, component, empty, children, ...props }) {
 
-  path = (parent || snapshot.path || snapshot.ref.path) + path;
-
-  let query = firestore.collection(path);
+  let query = getCollection(snapshot, path);
 
   if (orderBy) {
     query = query.orderBy(orderBy.split(" ")[0], orderBy.split(" ")[1]);

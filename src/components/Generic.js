@@ -126,3 +126,12 @@ function Projection({ match, path, snapshot, style, props, disableLoading }) {
 function snakeToCamel(str) {
     return str.charAt(0).toUpperCase() + str.substring(1).replace(/_(.)/g, (a, b) => `${b.toUpperCase()}`)
 }
+
+export function getCollection(snapshot, path) {
+    let ref = snapshot.ref;
+    while (path.startsWith("../")) {
+        path = path.replace(/^\.\.\//, '')
+        ref = ref.parent;
+    }
+    return ref.collection(path);
+}

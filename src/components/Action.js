@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { set, each } from 'lodash';
 import { Dialog, DialogContent, DialogActions, Button } from '@material-ui/core';
-import Generic, { parseProps } from './Generic';
+import Generic, { parseProps, getCollection } from './Generic';
 import Snackbar from '@material-ui/core/Snackbar';
 import MuiAlert from '@material-ui/lab/Alert';
 import { firebase } from '../firebase';
@@ -34,9 +34,7 @@ export default function Action({ open, snapshot, input, output, component, trigg
 
     useEffect(() => {
         if (!state.dialog.open && open) {
-            runActionCallback({
-                data: snapshot.data(),
-            });
+            runActionCallback({});
         }
         if (state.dialog.open && !open) {
             setState('dialog.open', false);
@@ -44,9 +42,7 @@ export default function Action({ open, snapshot, input, output, component, trigg
     }, [open, runActionCallback, setState, snapshot, state.dialog.open]);
 
     function handleTriggerEvent() {
-        runAction({
-            data: snapshot.data(),
-        });
+        runAction({});
     }
 
     function handleSnackbarClose() {
@@ -71,6 +67,8 @@ export default function Action({ open, snapshot, input, output, component, trigg
 
         context = {
             ...context,
+            snapshot,
+            data: snapshot.data(),
             firestore: firebase.firestore
         };
 
@@ -107,7 +105,6 @@ export default function Action({ open, snapshot, input, output, component, trigg
 
     function handleFormButtonClick() {
         processOutput({
-            data: snapshot.data(),
             input: state.inputData
         });
     }
@@ -146,13 +143,4 @@ function FormButton({ text, ...props }) {
 
 function Alert(props) {
     return <MuiAlert elevation={6} variant="filled" {...props} />;
-}
-
-function getCollection(snapshot, path) {
-    let ref = snapshot.ref;
-    while (path.startsWith("../")) {
-        path = path.replace(/^\.\.\//, '')
-        ref = ref.parent;
-    }
-    return ref.collection(path);
 }
