@@ -23,6 +23,7 @@ export default function Button({ match, snapshot, text, action, href, disabled, 
         <Action 
             open={actionOpen} 
             snapshot={snapshot} 
+            match={match}
             input={action.input} 
             output={action.output}
             onClose={handleClose} />

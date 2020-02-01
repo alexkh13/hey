@@ -50,6 +50,7 @@ export function parseProps(props, context) {
     const newProps = {};
 
     context = {
+        window,
         user: {
             ...auth.currentUser,
             ...auth.currentUser && auth.currentUser.isAnonymous && {

@@ -7,7 +7,7 @@ import MuiAlert from '@material-ui/lab/Alert';
 import { firebase } from '../firebase';
 import Form from './Form';
 
-export default function Action({ open, snapshot, input, output, component, trigger, onClose }) {
+export default function Action({ open, snapshot, input, output, component, trigger, match, onClose }) {
 
     const [ state, setStateRaw ] = useState({
         dialog: {
@@ -67,6 +67,7 @@ export default function Action({ open, snapshot, input, output, component, trigg
 
         context = {
             ...context,
+            match,
             snapshot,
             data: snapshot.data(),
             firestore: firebase.firestore
