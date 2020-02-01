@@ -58,13 +58,15 @@ async function collectionCreate(snap, context) {
                 return null
             }
 
-            if (!subscriberData.tokens) {
+            if (!subscriberData.tokens || !subscriberData.tokens.length) {
                 console.log(`"${subscriber.ref.path}" no data.tokens`)
                 return null
             }
 
             return admin.messaging().sendToDevice(subscriberData.tokens, {
-                data: documentData.notificationData,
+                ...documentData.notificationData && {
+                    data: documentData.notificationData
+                },
                 notification: documentData.text 
                     ? {
                         title: 'Incoming message',
