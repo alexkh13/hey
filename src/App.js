@@ -3,35 +3,39 @@ import { BrowserRouter as Router, Switch, Route } from "react-router-dom";
 import Document from './components/Document';
 import Home from './Home';
 import config from './config';
+import mainContext from './context';
 
 export default function App() {
 
   const host = getHost();
+  const context = {};
 
-  return <Router>
-    <Switch>
-      <Route path="/:id?">
-        {({match}) => {
-          const documentId = host || match.params.id;
-          if (host) {
-            match = {
-              ...match,
-              url: ''
+  return <mainContext.Provider value={context}>
+    <Router>
+      <Switch>
+        <Route path="/:id?">
+          {({match}) => {
+            const documentId = host || match.params.id;
+            if (host) {
+              match = {
+                ...match,
+                url: ''
+              }
             }
-          }
-          if (documentId) {
-            return <Document 
-              match={match}
-              path={config.mainPath} 
-              id={documentId}
-            />
-          } else {
-            return <Home />;
-          }
-        }}
-      </Route>
-    </Switch>
-  </Router>;
+            if (documentId) {
+              return <Document 
+                match={match}
+                path={config.mainPath} 
+                id={documentId}
+              />
+            } else {
+              return <Home />;
+            }
+          }}
+        </Route>
+      </Switch>
+    </Router>
+  </mainContext.Provider>;
 }
 
 function getHost() {

@@ -52,7 +52,7 @@ export function parseProps(props, context) {
     context = {
         user: {
             ...auth.currentUser,
-            ...auth.currentUser.isAnonymous && {
+            ...auth.currentUser && auth.currentUser.isAnonymous && {
                 displayName: localStorage.getItem("anonDisplayName")
             }
         },
@@ -72,7 +72,9 @@ export function parseProps(props, context) {
                     return value.replace(/\${([^}]*)}/g, (_, expression) => evaluate(context, expression));
                 } if (typeof value == 'function') {
                     return () => value(context);
-                } if (typeof value == 'object' && !Array.isArray(value)) {
+                } else if (key !== 'children' && Array.isArray(value)) {
+                    return value.map(v => parseProps(v, context));
+                } else if (typeof value == 'object' && !Array.isArray(value)) {
                     return parseProps(value, context);
                 } else {
                     return value;

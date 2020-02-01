@@ -15,13 +15,17 @@ export default function Button({ match, snapshot, text, action, href, disabled, 
         setActionOpen(true);
     }
     
+    function handleClose() {
+        setActionOpen(false)
+    }
+
     return <React.Fragment>
         <Action 
             open={actionOpen} 
             snapshot={snapshot} 
             input={action.input} 
             output={action.output}
-            onClose={() => setActionOpen(false)} />
+            onClose={handleClose} />
         <ButtonWrapper disabled={disabled} match={match} href={href}>
             <MaterialButton 
                 variant="contained"

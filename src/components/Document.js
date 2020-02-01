@@ -47,7 +47,7 @@ export default function Document({ snapshot, match, path, id, view }) {
 
   const Wrapper = useMemo(() => {
 
-    return debug ? 
+    return !context.depth && debug ? 
       ({ rawData, children }) => {
 
         function save() {
@@ -62,9 +62,12 @@ export default function Document({ snapshot, match, path, id, view }) {
         return <Grid container direction="row" className="fill" style={{ 
           position: 'relative',
         }}>
-          <Grid item xs={8} className="fill scroll" style={{position:'relative'}}>{children}</Grid>
+          <Grid item xs className="fill scroll" style={{
+            maxWidth: 400,
+            position:'relative'
+          }}>{children}</Grid>
           <Divider/>
-          <Grid item xs={4} className="fill scroll">
+          <Grid item xs className="fill scroll">
             <Editor onChange={onRawChange} value={rawData}/>
             <Fab onClick={save} style={{
               position: 'absolute',
@@ -77,12 +80,15 @@ export default function Document({ snapshot, match, path, id, view }) {
         </Grid> 
       }
       : ({ children }) => children
-  }, [debug, document, theme]);
+  }, [context.depth, debug, document, theme]);
 
   return loading ? <Spinner/> : 
     error ? <Error message={`path=${path} error=${JSON.stringify(error)}`} />
     : s.exists 
-      ? <mainContext.Provider value={snapshot ? {snapshot} : context}>
+      ? <mainContext.Provider value={{
+        ...context,
+        depth: ((context && context.depth)||0) + 1
+      }}>
         <Wrapper rawData={raw}>
           <Generic match={match} snapshot={s} path={path} def={parseDef()}/>
         </Wrapper>
