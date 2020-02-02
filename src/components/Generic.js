@@ -4,7 +4,7 @@ import Spinner from './Spinner';
 import { auth } from '../firebase';
 import expr from 'expression-eval';
 
-export default function Generic({ match, path, snapshot, style, def, disableLoading }) {
+export default function Generic({ match, path, snapshot, style, def, disableLoading, context }) {
 
     const data = snapshot.data();
 
@@ -17,7 +17,8 @@ export default function Generic({ match, path, snapshot, style, def, disableLoad
             style={style}
             match={match}
             snapshot={snapshot} 
-            props={data}/>
+            props={data}
+            context={context}/>
     }
 
     if (!Array.isArray(def)) {
@@ -32,12 +33,13 @@ export default function Generic({ match, path, snapshot, style, def, disableLoad
         style,
         snapshot,
         props,
+        context,
     }}/>);
 }
 
 function evaluate(context, expression) {
-    const ast = expr.parse(expression);
     try {
+        const ast = expr.parse(expression);
         return expr.eval(ast, context);
     } 
     catch(err) {
@@ -53,9 +55,6 @@ export function parseProps(props, context) {
         window,
         user: {
             ...auth.currentUser,
-            ...auth.currentUser && auth.currentUser.isAnonymous && {
-                displayName: localStorage.getItem("anonDisplayName")
-            }
         },
         ...context,
     }
@@ -87,7 +86,7 @@ export function parseProps(props, context) {
     return newProps;
 }
 
-function Projection({ match, path, snapshot, style, props, disableLoading }) {
+function Projection({ match, path, snapshot, style, props, disableLoading, context }) {
 
     const [loadingError, setLoadingError] = useState();
 
@@ -95,10 +94,11 @@ function Projection({ match, path, snapshot, style, props, disableLoading }) {
 
     const data = snapshot.data();
 
-    const context = {
+    context = {
         data,
         snapshot,
         match,
+        ...context
     };
 
     const LoadableComponent = useMemo(() => React.lazy(() => {
@@ -120,6 +120,7 @@ function Projection({ match, path, snapshot, style, props, disableLoading }) {
             style={style}
             path={path} 
             snapshot={snapshot} 
+            context={context}
             {...parseProps(props, context)}/>
     </Suspense>
 }

@@ -2,15 +2,15 @@ import React from 'react';
 import { Grid } from '@material-ui/core';
 import Generic from './Generic';
 
-export default function Layout({ match, snapshot, children, ...props }) {
-    const style = {
+export default function Layout({ children, style, ...props }) {
+    const itemStyle = {
         ...props.direction === 'column' && {
             width: "100%"
         }
     }
-    return <Grid container wrap="nowrap" {...props} style={{...style,...props.style}}>
-        {children.map(({ layoutItem, ...child }, index) => <Grid key={index} style={style} item {...layoutItem}>
-            <Generic match={match} snapshot={snapshot} def={child} disableLoading={true}/>
+    return <Grid container wrap="nowrap" {...props} style={style}>
+        {children.map(({ layoutItem, ...child }, index) => <Grid key={index} style={itemStyle} item {...layoutItem}>
+            <Generic def={child} disableLoading={true} {...props}/>
         </Grid>)}
     </Grid>
 }

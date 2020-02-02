@@ -39,9 +39,6 @@ export default function SubscribeButton({ snapshot, collectionName, ...props }) 
         } else {
             const name = user.displayName || prompt("What's your name?");
             if (name) {
-                if (user.isAnonymous) {
-                    localStorage.setItem("anonDisplayName", name); 
-                }
                 await messaging.getToken()
                     .then(async (token) => subscriptionRef.set({
                         createdBy: user.uid,

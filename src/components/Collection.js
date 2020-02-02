@@ -4,7 +4,7 @@ import { Typography, Grid } from '@material-ui/core';
 import Spinner from './Spinner';
 import Generic, { getCollection } from './Generic';
 
-export default function Collection({ match, parent, snapshot, path, orderBy, limit, component, empty, children, ...props }) {
+export default function Collection({ match, parent, snapshot, path, collection, orderBy, limit, component, empty, children, contextAs = 'collection', ...props }) {
 
   let query = getCollection(snapshot, path);
 
@@ -15,15 +15,26 @@ export default function Collection({ match, parent, snapshot, path, orderBy, lim
   if (limit) {
     query = query.limit(limit);
   }
-
-  const [ s, loading, error ] = useCollection(query, {
+  
+  const [s, loading, error] = useCollection(query, {
     snapshotListenOptions: { includeMetadataChanges: true },
   });
 
   function render() {
 
     if (children) {
-      return children(s);
+      if (typeof children === 'function') {
+        return children(s);
+      }
+
+      return <Generic 
+        match={match} 
+        snapshot={snapshot} 
+        def={children} 
+        context={{
+          [contextAs]: s
+        }}
+      />
     }
 
     if (s.empty) {
