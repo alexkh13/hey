@@ -4,7 +4,7 @@ import Spinner from './Spinner';
 import { auth } from '../firebase';
 import expr from 'expression-eval';
 
-export default function Generic({ match, path, snapshot, style, def, disableLoading, context }) {
+export default function Generic({ match, snapshot, style, def, disableLoading, context }) {
 
     const data = snapshot.data();
 
@@ -13,7 +13,6 @@ export default function Generic({ match, path, snapshot, style, def, disableLoad
     if (!def) {
         return <Projection 
             disableLoading={disableLoading}
-            path={path} 
             style={style}
             match={match}
             snapshot={snapshot} 
@@ -28,7 +27,6 @@ export default function Generic({ match, path, snapshot, style, def, disableLoad
     return def.map((props, key) => <Projection {...{
         disableLoading,
         key,
-        path,
         match,
         style,
         snapshot,
@@ -86,7 +84,7 @@ export function parseProps(props, context) {
     return newProps;
 }
 
-function Projection({ match, path, snapshot, style, props, disableLoading, context }) {
+function Projection({ match, snapshot, style, props, disableLoading, context }) {
 
     const [loadingError, setLoadingError] = useState();
 
@@ -118,7 +116,6 @@ function Projection({ match, path, snapshot, style, props, disableLoading, conte
         <LoadableComponent 
             match={match} 
             style={style}
-            path={path} 
             snapshot={snapshot} 
             context={context}
             {...parseProps(props, context)}/>
@@ -130,6 +127,9 @@ function snakeToCamel(str) {
 }
 
 export function getCollection(snapshot, path) {
+    if (!path) {
+        return;
+    }
     let ref = snapshot.ref;
     while (path.startsWith("../")) {
         path = path.replace(/^\.\.\//, '')

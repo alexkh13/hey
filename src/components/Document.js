@@ -11,18 +11,21 @@ import useStorageValue from '../hooks/withStorageValue';
 import Editor from './Editor';
 import mainContext from '../context';
 
+function getDocument(snapshot, path, id) {
+  if (snapshot) {
+    return snapshot.ref.collection(path).doc(id);
+  } else {
+    return firestore.doc(`${path}/${id}`);
+  }
+}
+
 export default function Document({ snapshot, match, path, id, view }) {
 
-  path = `${path}/${id}`;
-
   const context = useContext(mainContext);
-
-  const document = useMemo(() => firestore.doc(path), [path]);
-
+  const document = useMemo(() => getDocument(snapshot, path, id), [id, path, snapshot]);
   const [ s, loading, error ] = useDocument(document);
   const [ debug ] = useStorageValue('debug');
   const theme = useTheme();
-
   const [raw, setRaw] = useState();
 
   useEffect(() => {
@@ -90,7 +93,7 @@ export default function Document({ snapshot, match, path, id, view }) {
         depth: ((context && context.depth)||0) + 1
       }}>
         <Wrapper rawData={raw}>
-          <Generic match={match} snapshot={s} path={path} def={parseDef()}/>
+          <Generic match={match} snapshot={s} def={parseDef()}/>
         </Wrapper>
       </mainContext.Provider>
       : <Error status={404}/>

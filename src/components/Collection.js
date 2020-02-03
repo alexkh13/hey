@@ -1,42 +1,87 @@
 import React from 'react';
-import { useCollection } from "react-firebase-hooks/firestore";
+import { useCollection as useFirestoreCollection } from "react-firebase-hooks/firestore";
 import { Typography, Grid } from '@material-ui/core';
 import Spinner from './Spinner';
 import Generic, { getCollection } from './Generic';
 
-export default function Collection({ match, parent, snapshot, path, collection, orderBy, limit, component, empty, children, contextAs = 'collection', ...props }) {
+function useCollection(snapshot, path, query) {
 
-  let query = getCollection(snapshot, path);
+  let queryParams = query || {};
+    
+  if (typeof path == 'object') {
+    queryParams = path.query || queryParams;
+    path = path.path;
+  }
+
+  let col = getCollection(snapshot, path);
+
+  const {
+    orderBy,
+    limit
+  } = queryParams;
 
   if (orderBy) {
-    query = query.orderBy(orderBy.split(" ")[0], orderBy.split(" ")[1]);
+    col = col.orderBy(orderBy.split(" ")[0], orderBy.split(" ")[1]);
   }
 
   if (limit) {
-    query = query.limit(limit);
+    col = col.limit(limit);
   }
-  
-  const [s, loading, error] = useCollection(query, {
+
+  return useFirestoreCollection(col, {
     snapshotListenOptions: { includeMetadataChanges: true },
   });
+}
+
+export default function Collection({ match, parent, snapshot, paths, path, query, component, empty, children, ...props }) {
+
+  if (path) {
+    paths = {
+      [path]: query
+    }
+  }
+
+  const collections = {};
+
+  const is = {
+    loading: false,
+    error: false
+  };
+
+  for (const path in paths) {
+    const name = (path||"").split('/').pop();
+    // eslint-disable-next-line react-hooks/rules-of-hooks
+    const [s, loading, error] = useCollection(snapshot, path, query);
+    is.loading = is.loading || loading;
+    is.error = is.error || error;
+    collections[name] = s;
+  } 
 
   function render() {
 
     if (children) {
       if (typeof children === 'function') {
-        return children(s);
+        if (typeof path === 'string') {
+          return children(collections[path.split('/').pop()]);
+        } else {
+          return children(collections);
+        }
       }
 
       return <Generic 
         match={match} 
         snapshot={snapshot} 
         def={children} 
-        context={{
-          [contextAs]: s
-        }}
+        context={collections}
       />
     }
 
+    if (typeof path !== 'string') {
+      return "collection error"
+    }
+
+    const s = collections[path.split('/').pop()];
+    
     if (s.empty) {
       if (!empty || typeof empty == 'string') {
         return <Typography color="textSecondary">{empty || "Empty"}</Typography>
@@ -44,7 +89,7 @@ export default function Collection({ match, parent, snapshot, path, collection, 
         return <Generic match={match} snapshot={snapshot} def={empty} />
       }
     }
-    
+
     return <Grid container direction="column" {...props}  style={{ width: "100%", ...props.style }} >
       {s.docs.map((doc, i) => <Grid key={i} style={{ width: "100%" }} item>
         <Generic match={match} snapshot={doc} def={component}/>
@@ -52,8 +97,8 @@ export default function Collection({ match, parent, snapshot, path, collection, 
     </Grid>
   }
 
-  return loading ? <Spinner/> : 
-    error ? <Error error={error}/>
+  return is.loading ? <Spinner/> : 
+    is.error ? <Error error={is.error}/>
     : render();
 }
 

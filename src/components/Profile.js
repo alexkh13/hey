@@ -41,8 +41,10 @@ export default function Profile({ path, snapshot }) {
                 snapshot={snapshot}
                 parent={path}
                 path="/messages"  
-                orderBy="createTime desc"
-                limit={50}>
+                query={{
+                    orderBy: "createTime desc",
+                    limit: 50
+                }}>
                 {snap => <Messages messages={snap.docs}/>}
             </Collection>
         </Box>
