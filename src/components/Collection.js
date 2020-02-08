@@ -33,7 +33,7 @@ function useCollection(snapshot, path, query) {
   });
 }
 
-export default function Collection({ match, parent, snapshot, paths, path, query, component, empty, children, ...props }) {
+export default function Collection({ match, parent, snapshot, paths, context, path, query, component, empty, children, ...props }) {
 
   if (path) {
     paths = {
@@ -41,7 +41,9 @@ export default function Collection({ match, parent, snapshot, paths, path, query
     }
   }
 
-  const collections = {};
+  const collections = {
+    ...context
+  };
 
   const is = {
     loading: false,
@@ -86,13 +88,13 @@ export default function Collection({ match, parent, snapshot, paths, path, query
       if (!empty || typeof empty == 'string') {
         return <Typography color="textSecondary">{empty || "Empty"}</Typography>
       } else {
-        return <Generic match={match} snapshot={snapshot} def={empty} />
+        return <Generic match={match} snapshot={snapshot} def={empty} context={context} />
       }
     }
 
     return <Grid container direction="column" {...props}  style={{ width: "100%", ...props.style }} >
       {s.docs.map((doc, i) => <Grid key={i} style={{ width: "100%" }} item>
-        <Generic match={match} snapshot={doc} def={component}/>
+        <Generic match={match} snapshot={doc} def={component} context={context}/>
       </Grid>)}
     </Grid>
   }

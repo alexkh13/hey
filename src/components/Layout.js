@@ -2,13 +2,17 @@ import React from 'react';
 import { Grid } from '@material-ui/core';
 import Generic from './Generic';
 
-export default function Layout({ children, style, ...props }) {
+export default function Layout({ children, style, direction, spacing, alignItems, justify , ...props }) {
     const itemStyle = {
-        ...props.direction === 'column' && {
+        ...direction === 'column' && {
             width: "100%"
         }
-    }
-    return <Grid container wrap="nowrap" {...props} style={style}>
+    };
+    const containerProps = {
+        direction, spacing, alignItems, justify
+    };
+
+    return <Grid container wrap="nowrap" {...containerProps} style={style}>
         {children.map(({ layoutItem, ...child }, index) => <Grid key={index} style={itemStyle} item {...layoutItem}>
             <Generic def={child} disableLoading={true} {...props}/>
         </Grid>)}

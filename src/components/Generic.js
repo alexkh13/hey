@@ -1,10 +1,10 @@
 import React, { useMemo, Suspense, useState } from 'react';
-import {each} from 'lodash';
+import {each, reduce} from 'lodash';
 import Spinner from './Spinner';
 import { auth } from '../firebase';
 import expr from 'expression-eval';
 
-export default function Generic({ match, snapshot, style, def, disableLoading, context }) {
+export default function Generic({ match, snapshot, style, def, disableLoading, context, debug }) {
 
     const data = snapshot.data();
 
@@ -54,6 +54,13 @@ export function parseProps(props, context) {
         user: {
             ...auth.currentUser,
         },
+        find: (s, f) => {
+            const r = s.docs.find((d) => evaluate({ ...context, d }, f));
+            return r ? r.data() : {};
+        },
+        reduce: (s, f, m) => reduce(s, (m, d) => {
+            return evaluate({ ...context, m, d }, f);
+        }, m), 
         ...context,
     }
 
@@ -93,10 +100,10 @@ function Projection({ match, snapshot, style, props, disableLoading, context }) 
     const data = snapshot.data();
 
     context = {
+        ...context,
         data,
         snapshot,
         match,
-        ...context
     };
 
     const LoadableComponent = useMemo(() => React.lazy(() => {
