@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
+import { useHistory } from 'react-router-dom';
 import { set, each } from 'lodash';
 import { Dialog, DialogContent, DialogActions, Button } from '@material-ui/core';
 import Generic, { parseProps, getCollection } from './Generic';
@@ -7,8 +8,9 @@ import MuiAlert from '@material-ui/lab/Alert';
 import { firebase } from '../firebase';
 import Form from './Form';
 
-export default function Action({ open, snapshot, input, output, component, trigger, match, onClose }) {
+export default function Action({ open, snapshot, input, output, component, trigger, match, context, onClose }) {
 
+    const history = useHistory();
     const [ state, setStateRaw ] = useState({
         dialog: {
             open
@@ -49,21 +51,27 @@ export default function Action({ open, snapshot, input, output, component, trigg
         setState('snackbar.open', false);
     }
 
-    async function runAction(context) {
+    async function runAction(ctx) {
+
+        ctx = { 
+            ...context,
+            ...ctx
+        }
 
         if ((!state.phase && input) || state.phase === 'input') {
             setState({
                 'dialog.open': true,
-                'phase': 'input'
+                'phase': 'input',
+                'inputData': parseProps(input && input.data, ctx)
             });
         }
 
         if (!(state.phase || input) || state.phase === 'output') {
-            processOutput(context);
+            processOutput(ctx);
         }
     }
 
-    function processOutput(context) {
+    async function processOutput(context) {
 
         context = {
             ...context,
@@ -74,24 +82,34 @@ export default function Action({ open, snapshot, input, output, component, trigg
         };
 
         if (output) {
+            let self;
             if (output.insert) {
-                getCollection(snapshot, output.insert.path).add(parseProps(output.insert.data, context)).catch(err => {
-                    setState('snackbar', {
-                        open: true,
-                        severity: "error",
-                        message: err.message
+                self = await getCollection(snapshot, output.insert.path)
+                    .add(parseProps(output.insert.data, context))
+                    .catch(err => {
+                        setState('snackbar', {
+                            open: true,
+                            severity: "error",
+                            message: err.message
+                        });
                     });
-                });
                 onClose();
             }
             if (output.update) {
-                snapshot.ref.set(parseProps(output.update.data, context), { merge: true }).catch(err => {
+                self = await snapshot.ref.set(parseProps(output.update.data, context), { merge: true }).catch(err => {
                     setState('snackbar', {
                         open: true,
                         severity: "error",
                         message: err.message
                     });
                 });
+            }
+            if (output.link) {
+                const { link } =  parseProps({ link: output.link }, {
+                    ...context,
+                    self,
+                });
+                history.push(link);
             }
         }
     }

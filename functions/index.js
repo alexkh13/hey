@@ -19,61 +19,72 @@ const firestore = admin.firestore()
 
 exports.hub = functions.firestore
     .document('/hubs/{hubId}/{col}/{messageId}')
-    .onCreate(collectionCreate)
+    .onCreate(collectionCreate(({ hubId }) => `/hubs/${hubId}`))
 
-async function collectionCreate(snap, context) {
-    const { hubId } = context.params || {}
-    const documentData = snap.data()
+exports.hubSubCollection = functions.firestore
+    .document('/hubs/{hubId}/{colParent}/{docId}/{col}/{messageId}')
+    .onCreate(collectionCreate(({ hubId, colParent, docId }) => `/hubs/${hubId}/${colParent}/${docId}`))
 
-    const rootPath = `hubs/${hubId}`;
+function collectionCreate(rootPath) {
+    return async (snap, context) => {
+        const documentData = snap.data()
 
-    if (!documentData) {
-        console.log(`"${rootPath}" no data`);
-        return null;
-    }
-
-    const hub = await firestore.doc(rootPath).get();
-
-    const { subColName = "subscribers" } = hub.data() || {};
-
-    const collectionPath = `${rootPath}/${subColName}`;
-
-    const subscribersPromise = (() => {
-        if (documentData[subColName]) {
-            const docs = documentData[subColName].map(subscriberId => firestore.doc(`${collectionPath}/${subscriberId}`));
-            return firestore.getAll(...docs);
-        } else {
-            return firestore.collection(collectionPath).get().then(s => s.docs);
+        if (typeof rootPath == 'function') {
+            rootPath = rootPath(context.params || {})
         }
-    })();
+    
+        if (!documentData) {
+            console.log(`"${rootPath}" no data`);
+            return null;
+        }
 
-    return subscribersPromise.then(async subscribers => {
-
-        return Promise.all(subscribers.map(async subscriber => {
-
-            const subscriberData = subscriber.data();
-
-            if (!subscriberData) {
-                console.log(`"${subscriber.ref.path}" no data`)
-                return null
+        console.log("Incoming", rootPath, documentData);
+    
+        const hub = await firestore.doc(rootPath).get();
+    
+        const { subColName = "subscribers" } = hub.data() || {};
+    
+        const collectionPath = `${rootPath}/${subColName}`;
+    
+        const subscribersPromise = (() => {
+            if (documentData[subColName]) {
+                const docs = documentData[subColName].map(subscriberId => firestore.doc(`${collectionPath}/${subscriberId}`));
+                return firestore.getAll(...docs);
+            } else {
+                return firestore.collection(collectionPath).get().then(s => s.docs);
             }
+        })();
+    
+        return subscribersPromise.then(async subscribers => {
 
-            if (!subscriberData.tokens || !subscriberData.tokens.length) {
-                console.log(`"${subscriber.ref.path}" no data.tokens`)
-                return null
-            }
-
-            return admin.messaging().sendToDevice(subscriberData.tokens, {
-                data: {
-                    ...documentData.notification,
-                    ...documentData.text && {
-                        title: 'Incoming message',
-                        body: documentData.text 
-                    }
+            console.log(`Sending to ${subscribers.length} subscribers`, subscribers.map(s => s.data()));
+    
+            return Promise.all(subscribers.map(async subscriber => {
+    
+                const subscriberData = subscriber.data();
+    
+                if (!subscriberData) {
+                    console.log(`"${subscriber.ref.path}" no data`)
+                    return null
                 }
-            });
-
-        }));
-        
-    });
+    
+                if (!subscriberData.tokens || !subscriberData.tokens.length) {
+                    console.log(`"${subscriber.ref.path}" no data.tokens`)
+                    return null
+                }
+    
+                return admin.messaging().sendToDevice(subscriberData.tokens, {
+                    data: {
+                        ...documentData.notification,
+                        ...documentData.text && {
+                            title: 'Incoming message',
+                            body: documentData.text 
+                        }
+                    }
+                });
+    
+            }));
+            
+        });
+    }
 }

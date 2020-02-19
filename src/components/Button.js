@@ -3,7 +3,7 @@ import { Button as MaterialButton } from '@material-ui/core';
 import Action from './Action';
 import { Link } from 'react-router-dom';
 
-export default function Button({ match, snapshot, text, action, href, disabled, ...props }) {
+export default function Button({ match, snapshot, text, action, href, disabled, context, ...props }) {
 
     const [actionOpen, setActionOpen] = useState(false);
 
@@ -23,6 +23,7 @@ export default function Button({ match, snapshot, text, action, href, disabled, 
         <Action 
             open={actionOpen} 
             snapshot={snapshot} 
+            context={context}
             match={match}
             input={action.input} 
             output={action.output}
