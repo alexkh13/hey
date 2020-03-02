@@ -66,7 +66,11 @@ export default function Action({ open, snapshot, input, output, component, trigg
             });
         }
 
-        if (!(state.phase || input) || state.phase === 'output') {
+        if (state.phase !== 'output' && !(state.phase || input)) {
+            setState({
+                ...state,
+                'phase': 'output',
+            });
             processOutput(ctx);
         }
     }

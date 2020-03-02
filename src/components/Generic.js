@@ -46,7 +46,11 @@ function evaluate(context, expression) {
     }
 }
 
-export function parseProps(props, context) {
+export function parseProps(props, context, depth = 0) {
+    if (depth > 2) {
+        return props;
+    }
+
     const newProps = {};
 
     context = {
@@ -55,9 +59,9 @@ export function parseProps(props, context) {
             ...auth.currentUser,
         },
         find: (s, f) => {
-            const r = s.docs.find((d) => evaluate({ ...context, d }, f));
-            return r ? r.data() : {};
+            return s && s.docs.find((d) => evaluate({ ...context, d }, f));
         },
+        json: JSON.stringify,
         reduce: (s, f, m) => reduce(s, (m, d) => {
             return evaluate({ ...context, m, d }, f);
         }, m), 
@@ -65,11 +69,13 @@ export function parseProps(props, context) {
     }
 
     each(props, (value, key) => {
+        if (typeof key !== 'string') return;
         const res = { key, value };
         if (key.charAt(0) === '$') {
             res.key = key.substring(1);
         } else {
             res.value = (() => {
+                if (key === 'contextAssign') return value;
                 if (typeof value == 'string') {
                     if (value.match(/^\${.*}$/) && value.substring(2).indexOf('$') === -1) {
                         return evaluate(context, value.match(/\${(.*)}/)[1]);
@@ -80,7 +86,7 @@ export function parseProps(props, context) {
                 } else if (key !== 'children' && Array.isArray(value)) {
                     return value.map(v => parseProps(v, context));
                 } else if (typeof value == 'object' && !Array.isArray(value)) {
-                    return parseProps(value, context);
+                    return parseProps(value, context, depth + 1);
                 } else {
                     return value;
                 }
